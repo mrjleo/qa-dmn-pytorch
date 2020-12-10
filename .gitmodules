@@ -1,0 +1,3 @@
+[submodule "qa_utils"]
+	path = qa_utils
+	url = ../qa-utils.git
