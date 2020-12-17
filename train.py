@@ -28,7 +28,7 @@ def main():
     ap.add_argument('--limit_train_batches', type=int, default=sys.maxsize, help='Use a subset of training data')
     ap.add_argument('--limit_test_batches', type=int, default=sys.maxsize, help='Use a subset of test data')
     ap.add_argument('--precision', type=int, choices=[16, 32], default=32, help='Floating point precision')
-    ap.add_argument('--distributed_backend', default='ddp', help='Distributed backend')
+    ap.add_argument('--accelerator', default='ddp', help='Distributed backend (accelerator)')
 
     # model args
     GloVeDMNRanker.add_model_specific_args(ap)

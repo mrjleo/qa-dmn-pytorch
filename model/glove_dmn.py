@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from typing import Any, Dict, List, Tuple
 
 import torch
@@ -292,7 +293,7 @@ class GloVeDMNRanker(BaseRanker):
             train_ds = DMNPairwiseTrainDataset(hparams['data_file'], hparams['train_file_pairwise'], vocab)
         val_ds = DMNValTestDataset(hparams['data_file'], hparams['val_file'], vocab)
         test_ds = DMNValTestDataset(hparams['data_file'], hparams['test_file'], vocab)
-        uses_ddp = 'ddp' in hparams['distributed_backend']
+        uses_ddp = 'ddp' in hparams['accelerator']
         super().__init__(hparams, train_ds, val_ds, test_ds, hparams['loss_margin'], hparams['batch_size'], rr_k, num_workers, uses_ddp)
 
         self.input_module = InputModule(vocab, hparams['rep_dim'], hparams['dropout'])
@@ -323,18 +324,17 @@ class GloVeDMNRanker(BaseRanker):
         return torch.optim.Adam(self.parameters(), lr=self.hparams['lr'])
 
     @staticmethod
-    def add_model_specific_args(parser):
+    def add_model_specific_args(ap: ArgumentParser):
         """Add model-specific arguments to the parser.
 
         Args:
             ap (ArgumentParser): The parser
         """
-        parser.add_argument('--rep_dim', type=int, default=256, help='The dimension of fact and query representations and memory')
-        parser.add_argument('--attention_dim', type=int, default=256, help='The dimension of the linear layer applied to the interactions')
-        parser.add_argument('--agru_dim', type=int, default=256, help='The hidden dimension of the attention GRU')
-        parser.add_argument('--num_episodes', type=int, default=4, help='The number of episodes')
-        parser.add_argument('--dropout', type=float, default=0.1, help='Dropout percentage')
-        parser.add_argument('--lr', type=float, default=0.001, help='Learning rate')
-        parser.add_argument('--loss_margin', type=float, default=0.2, help='Hinge loss margin')
-        parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
-        return parser
+        ap.add_argument('--rep_dim', type=int, default=256, help='The dimension of fact and query representations and memory')
+        ap.add_argument('--attention_dim', type=int, default=256, help='The dimension of the linear layer applied to the interactions')
+        ap.add_argument('--agru_dim', type=int, default=256, help='The hidden dimension of the attention GRU')
+        ap.add_argument('--num_episodes', type=int, default=4, help='The number of episodes')
+        ap.add_argument('--dropout', type=float, default=0.1, help='Dropout percentage')
+        ap.add_argument('--lr', type=float, default=0.001, help='Learning rate')
+        ap.add_argument('--loss_margin', type=float, default=0.2, help='Margin for pairwise loss')
+        ap.add_argument('--batch_size', type=int, default=32, help='Batch size')
