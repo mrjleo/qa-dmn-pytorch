@@ -30,10 +30,11 @@ def _get_single_dmn_input(query: str, doc: str, vocab: Vocab) -> DMNInput:
     Returns:
         DMNInput: Query tokens, document tokens and sentence lengths
     """
-    query_tokens = [vocab.stoi[w] for w in nltk.word_tokenize(query.lower())]
+    # some queries or documents might be empty
+    query_tokens = [vocab.stoi[w] for w in nltk.word_tokenize(query or '(empty)')]
     doc_tokens = []
     sentence_lengths = []
-    for sentence in nltk.sent_tokenize(doc.lower()):
+    for sentence in nltk.sent_tokenize(doc or '(empty)'):
         sentence_tokens = [vocab.stoi[w] for w in nltk.word_tokenize(sentence)]
         doc_tokens.extend(sentence_tokens)
         sentence_lengths.append(len(sentence_tokens))
