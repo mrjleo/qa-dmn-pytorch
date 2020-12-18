@@ -22,9 +22,10 @@ class InputModule(torch.nn.Module):
         super().__init__()
         self.rep_dim = rep_dim
         self.glove = vocab
-        
+
+        pad_id = vocab.stoi['<pad>']
         emb_dim = vocab.vectors[0].shape[0]
-        self.embedding = torch.nn.Embedding.from_pretrained(vocab.vectors, freeze=False)
+        self.embedding = torch.nn.Embedding.from_pretrained(vocab.vectors, freeze=False, padding_idx=pad_id)
         self.input_gru = torch.nn.GRU(emb_dim, rep_dim, bidirectional=True, batch_first=True)
         self.question_gru = torch.nn.GRU(emb_dim, rep_dim, batch_first=True)
         self.dropout = torch.nn.Dropout(dropout)
