@@ -6,10 +6,10 @@ from pathlib import Path
 
 from pytorch_lightning import seed_everything
 
-from qa_utils.datasets.antique import ANTIQUE
-from qa_utils.datasets.fiqa import FiQA
-from qa_utils.datasets.insuranceqa import InsuranceQA
-from qa_utils.datasets.msmarco import MSMARCO
+from ranking_utils.datasets.antique import ANTIQUE
+from ranking_utils.datasets.fiqa import FiQA
+from ranking_utils.datasets.insuranceqa import InsuranceQA
+from ranking_utils.datasets.trecdl import TRECDL2019Passage
 
 
 def main():
@@ -22,26 +22,21 @@ def main():
 
     subparsers = ap.add_subparsers(help='Choose a dataset', dest='dataset')
     subparsers.required = True
-    for c in [ANTIQUE, FiQA, InsuranceQA, MSMARCO]:
+    DATASETS = [ANTIQUE, FiQA, InsuranceQA, TRECDL2019Passage]
+    for c in DATASETS:
         c.add_subparser(subparsers, c.__name__.lower())
     args = ap.parse_args()
 
     if args.random_seed:
         seed_everything(args.random_seed)
 
-    if args.dataset == FiQA.__name__.lower():
-        ds = FiQA(args)
-    elif args.dataset == InsuranceQA.__name__.lower():
-        ds = InsuranceQA(args)
-    elif args.dataset == MSMARCO.__name__.lower():
-        ds = MSMARCO(args)
-    elif args.dataset == ANTIQUE.__name__.lower():
-        ds = ANTIQUE(args)
-    else:
-        raise argparse.ArgumentError('Unsupported dataset')
+    ds = None
+    for c in DATASETS:
+        if args.dataset == c.__name__.lower():
+            ds = c(args)
+            break
 
     save_path = Path(args.SAVE)
-    save_path.mkdir(parents=True, exist_ok=True)
     ds.save(save_path, args.num_negatives, args.pw_num_negatives, args.pw_query_limit)
 
 

@@ -6,7 +6,7 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 from torchtext.vocab import Vocab
 
-from qa_utils.lightning.datasets import PairwiseTrainDatasetBase, PointwiseTrainDatasetBase, ValTestDatasetBase
+from ranking_utils.lightning.datasets import PairwiseTrainDatasetBase, PointwiseTrainDatasetBase, ValTestDatasetBase
 
 
 DMNInput = Tuple[torch.LongTensor, torch.LongTensor, torch.IntTensor]

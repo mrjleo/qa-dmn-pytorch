@@ -5,7 +5,7 @@ import torch
 from torchtext.vocab import Vocab
 from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence, pad_packed_sequence
 
-from qa_utils.lightning.base_ranker import BaseRanker
+from ranking_utils.lightning.base_ranker import BaseRanker
 
 from model.datasets import DMNPointwiseTrainDataset, DMNPairwiseTrainDataset, DMNValTestDataset, DMNBatch
 

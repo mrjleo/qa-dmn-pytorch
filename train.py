@@ -15,6 +15,7 @@ from model.glove_dmn import GloVeDMNRanker
 def main():
     ap = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     ap.add_argument('DATA_DIR', help='Folder with all preprocessed files')
+    ap.add_argument('FOLD_NAME', help='Name of the fold (within DATA_DIR)')
     ap.add_argument('VOCAB', help='Vocabulary file')
 
     # trainer args
@@ -47,10 +48,10 @@ def main():
 
     data_dir = Path(args.DATA_DIR)
     args.data_file = data_dir / 'data.h5'
-    args.train_file_pointwise = data_dir / 'train_pointwise.h5'
-    args.train_file_pairwise = data_dir / 'train_pairwise.h5'
-    args.val_file = data_dir / 'val.h5'
-    args.test_file = data_dir / 'test.h5'
+    args.train_file_pointwise = data_dir / args.FOLD_NAME / 'train_pointwise.h5'
+    args.train_file_pairwise = data_dir / args.FOLD_NAME / 'train_pairwise.h5'
+    args.val_file = data_dir / args.FOLD_NAME / 'val.h5'
+    args.test_file = data_dir / args.FOLD_NAME / 'test.h5'
     with open(args.VOCAB, 'rb') as fp:
         vocab = pickle.load(fp)
     model = GloVeDMNRanker(vars(args), vocab, training_mode=args.training_mode)
