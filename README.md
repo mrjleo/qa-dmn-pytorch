@@ -18,18 +18,20 @@ Clone this repository using `git clone --recursive` to get the submodule.
 The following datasets are currently supported:
 * [ANTIQUE](https://ciir.cs.umass.edu/downloads/Antique/)
 * [FiQA Task 2](https://sites.google.com/view/fiqa/home)
-* [MS MARCO Passage Ranking](https://microsoft.github.io/TREC-2019-Deep-Learning/)
 * [InsuranceQA V2](https://github.com/shuzi/insuranceQA)
+* [TREC-DL 2019 Passage Ranking](https://microsoft.github.io/msmarco/TREC-Deep-Learning-2019)
 
 ### Preprocessing
 First, preprocess your dataset:
 ```
-usage: preprocess.py [-h] [--num_negatives NUM_NEGATIVES] [--pw_num_negatives PW_NUM_NEGATIVES] [--pw_query_limit PW_QUERY_LIMIT] [--random_seed RANDOM_SEED]
-                     SAVE {antique,fiqa,insuranceqa,msmarco} ...
+usage: preprocess.py [-h] [--num_negatives NUM_NEGATIVES]
+                     [--pw_num_negatives PW_NUM_NEGATIVES]
+                     [--pw_query_limit PW_QUERY_LIMIT] [--random_seed RANDOM_SEED]
+                     SAVE {antique,fiqa,insuranceqa,trecdl2019passage} ...
 
 positional arguments:
   SAVE                  Where to save the results
-  {antique,fiqa,insuranceqa,msmarco}
+  {antique,fiqa,insuranceqa,trecdl2019passage}
                         Choose a dataset
 
 optional arguments:
@@ -39,37 +41,52 @@ optional arguments:
   --pw_num_negatives PW_NUM_NEGATIVES
                         Number of negatives per positive (pairwise training) (default: 16)
   --pw_query_limit PW_QUERY_LIMIT
-                        Maximum number of training examples per query (pairwise training) (default: 64)
+                        Maximum number of training examples per query (pairwise training)
+                        (default: 64)
   --random_seed RANDOM_SEED
                         Random seed (default: 123)
 ```
 
 Next, create a vocabulary:
 ```
-usage: create_vocab.py [-h] [--max_size MAX_SIZE] [--cache CACHE] [--vectors VECTORS] [--out_file OUT_FILE] DATA_FILE
+usage: create_vocab.py [-h] [--max_size MAX_SIZE] [--cache CACHE] [--vectors VECTORS]
+                       [--out_file OUT_FILE] [--random_seed RANDOM_SEED]
+                       DATA_FILE
 
 positional arguments:
-  DATA_FILE            File that holds the queries and documents
+  DATA_FILE             File that holds the queries and documents
 
 optional arguments:
-  -h, --help           show this help message and exit
-  --max_size MAX_SIZE  Maximum vocabulary size (default: None)
-  --cache CACHE        Torchtext cache (default: None)
-  --vectors VECTORS    Pre-trained vectors (default: glove.840B.300d)
-  --out_file OUT_FILE  Where to save the vocabulary (default: vocab.pkl)
+  -h, --help            show this help message and exit
+  --max_size MAX_SIZE   Maximum vocabulary size (default: None)
+  --cache CACHE         Torchtext cache (default: None)
+  --vectors VECTORS     Pre-trained vectors (default: glove.840B.300d)
+  --out_file OUT_FILE   Where to save the vocabulary (default: vocab.pkl)
+  --random_seed RANDOM_SEED
+                        Random seed (default: 123)
 ```
 
 ### Training and Evaluation
 Use the training script to train a new model and save checkpoints:
 ```
-usage: train.py [-h] [--accumulate_grad_batches ACCUMULATE_GRAD_BATCHES] [--max_epochs MAX_EPOCHS] [--gpus GPUS [GPUS ...]] [--val_check_interval VAL_CHECK_INTERVAL] [--save_top_k SAVE_TOP_K]
-                [--limit_val_batches LIMIT_VAL_BATCHES] [--limit_train_batches LIMIT_TRAIN_BATCHES] [--limit_test_batches LIMIT_TEST_BATCHES] [--precision {16,32}] [--accelerator ACCELERATOR]
-                [--rep_dim REP_DIM] [--attention_dim ATTENTION_DIM] [--agru_dim AGRU_DIM] [--num_episodes NUM_EPISODES] [--dropout DROPOUT] [--lr LR] [--loss_margin LOSS_MARGIN] [--batch_size BATCH_SIZE]
-                [--training_mode {pointwise,pairwise}] [--val_patience VAL_PATIENCE] [--save_dir SAVE_DIR] [--random_seed RANDOM_SEED] [--load_weights LOAD_WEIGHTS] [--test]
-                DATA_DIR VOCAB
+usage: train.py [-h] [--accumulate_grad_batches ACCUMULATE_GRAD_BATCHES]
+                [--max_epochs MAX_EPOCHS] [--gpus GPUS [GPUS ...]]
+                [--val_check_interval VAL_CHECK_INTERVAL] [--save_top_k SAVE_TOP_K]
+                [--limit_val_batches LIMIT_VAL_BATCHES]
+                [--limit_train_batches LIMIT_TRAIN_BATCHES]
+                [--limit_test_batches LIMIT_TEST_BATCHES] [--precision {16,32}]
+                [--accelerator ACCELERATOR] [--rep_dim REP_DIM]
+                [--attention_dim ATTENTION_DIM] [--agru_dim AGRU_DIM]
+                [--num_episodes NUM_EPISODES] [--dropout DROPOUT] [--lr LR]
+                [--loss_margin LOSS_MARGIN] [--batch_size BATCH_SIZE]
+                [--training_mode {pointwise,pairwise}] [--val_patience VAL_PATIENCE]
+                [--save_dir SAVE_DIR] [--random_seed RANDOM_SEED]
+                [--load_weights LOAD_WEIGHTS] [--test]
+                DATA_DIR FOLD_NAME VOCAB
 
 positional arguments:
   DATA_DIR              Folder with all preprocessed files
+  FOLD_NAME             Name of the fold (within DATA_DIR)
   VOCAB                 Vocabulary file
 
 optional arguments:
@@ -93,9 +110,11 @@ optional arguments:
   --precision {16,32}   Floating point precision (default: 32)
   --accelerator ACCELERATOR
                         Distributed backend (accelerator) (default: ddp)
-  --rep_dim REP_DIM     The dimension of fact and query representations and memory (default: 256)
+  --rep_dim REP_DIM     The dimension of fact and query representations and memory
+                        (default: 256)
   --attention_dim ATTENTION_DIM
-                        The dimension of the linear layer applied to the interactions (default: 256)
+                        The dimension of the linear layer applied to the interactions
+                        (default: 256)
   --agru_dim AGRU_DIM   The hidden dimension of the attention GRU (default: 256)
   --num_episodes NUM_EPISODES
                         The number of episodes (default: 4)
