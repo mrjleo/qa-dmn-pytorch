@@ -282,11 +282,10 @@ class GloVeDMNRanker(BaseRanker):
     Args:
         hparams (Dict[str, Any]): All model hyperparameters
         vocab (Vocab): Vocabulary
-        rr_k (int, optional): Compute MRR@k. Defaults to 10.
         num_workers (int, optional): Number of DataLoader workers. Defaults to 16.
         training_mode (str, optional): Training mode, 'pointwise' or 'pairwise'. Defaults to 'pairwise'.
     """
-    def __init__(self, hparams: Dict[str, Any], vocab: Vocab, rr_k: int = 10, num_workers: int = 16, training_mode: str = 'pairwise'):
+    def __init__(self, hparams: Dict[str, Any], vocab: Vocab, num_workers: int = 16, training_mode: str = 'pairwise'):
         if training_mode == 'pointwise':
             train_ds = DMNPointwiseTrainDataset(hparams['data_file'], hparams['train_file_pointwise'], vocab)
         else:
@@ -295,7 +294,7 @@ class GloVeDMNRanker(BaseRanker):
         val_ds = DMNValTestDataset(hparams['data_file'], hparams['val_file'], vocab)
         test_ds = DMNValTestDataset(hparams['data_file'], hparams['test_file'], vocab)
         uses_ddp = 'ddp' in hparams['accelerator']
-        super().__init__(hparams, train_ds, val_ds, test_ds, hparams['loss_margin'], hparams['batch_size'], rr_k, num_workers, uses_ddp)
+        super().__init__(hparams, train_ds, val_ds, test_ds, hparams['loss_margin'], hparams['batch_size'], num_workers, uses_ddp)
 
         self.input_module = InputModule(vocab, hparams['rep_dim'], hparams['dropout'])
         self.memory_module = MemoryModule(hparams['rep_dim'], hparams['attention_dim'], hparams['agru_dim'])

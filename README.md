@@ -2,14 +2,14 @@
 This is an implementation of the Dynamic Memory Network proposed in [Ask Me Anything: Dynamic Memory Networks for Natural Language Processing](http://proceedings.mlr.press/v48/kumar16.pdf) and [Dynamic Memory Networks for Visual and Textual Question Answering](http://proceedings.mlr.press/v48/xiong16.pdf) for passage re-ranking in QA.
 
 ## Requirements
-This code is tested with Python 3.8.3 and
-* torch==1.7.0
-* pytorch-lightning==1.1.0
+This code is tested with Python 3.8.10 and
+* torch==1.8.1
+* pytorch-lightning==1.3.1
 * h5py==2.10.0
-* numpy==1.18.5
-* torchtext==0.8.0
-* tqdm==4.48.0
-* nltk==3.5
+* numpy==1.20.1
+* torchtext==0.9.1
+* tqdm==4.60.0
+* nltk==3.6.1
 
 ## Cloning
 Clone this repository using `git clone --recursive` to get the submodule.
@@ -19,7 +19,8 @@ The following datasets are currently supported:
 * [ANTIQUE](https://ciir.cs.umass.edu/downloads/Antique/)
 * [FiQA Task 2](https://sites.google.com/view/fiqa/home)
 * [InsuranceQA V2](https://github.com/shuzi/insuranceQA)
-* [TREC-DL 2019 Passage Ranking](https://microsoft.github.io/msmarco/TREC-Deep-Learning-2019)
+* [TREC-DL 2019](https://microsoft.github.io/msmarco/TREC-Deep-Learning-2019)
+* Any dataset in generic TREC format
 
 ### Preprocessing
 First, preprocess your dataset:
@@ -27,24 +28,27 @@ First, preprocess your dataset:
 usage: preprocess.py [-h] [--num_negatives NUM_NEGATIVES]
                      [--pw_num_negatives PW_NUM_NEGATIVES]
                      [--pw_query_limit PW_QUERY_LIMIT] [--random_seed RANDOM_SEED]
-                     SAVE {antique,fiqa,insuranceqa,trecdl2019passage} ...
+                     SAVE
+                     {antique,fiqa,insuranceqa,trecdl2019passage,trecdl2019document,trec}
+                     ...
 
 positional arguments:
   SAVE                  Where to save the results
-  {antique,fiqa,insuranceqa,trecdl2019passage}
+  {antique,fiqa,insuranceqa,trecdl2019passage,trecdl2019document,trec}
                         Choose a dataset
 
 optional arguments:
   -h, --help            show this help message and exit
   --num_negatives NUM_NEGATIVES
-                        Number of negatives per positive (pointwise training) (default: 1)
+                        Number of negatives per positive (pointwise training)
+                        (default: 1)
   --pw_num_negatives PW_NUM_NEGATIVES
-                        Number of negatives per positive (pairwise training) (default: 16)
+                        Number of negatives per positive (pairwise training)
+                        (default: 16)
   --pw_query_limit PW_QUERY_LIMIT
-                        Maximum number of training examples per query (pairwise training)
-                        (default: 64)
+                        Maximum number of training examples per query (pairwise
+                        training) (default: 64)
   --random_seed RANDOM_SEED
-                        Random seed (default: 123)
 ```
 
 Next, create a vocabulary:
@@ -135,4 +139,4 @@ optional arguments:
                         Load pre-trained weights before training (default: None)
   --test                Test the model after training (default: False)
 ```
-Use the `--test` argument to run the model on the testset using the best checkpoint after training.
+Use the `--test` argument to run the model on the testset using the best checkpoint after training. This will create output files (one per GPU) in your experiment directory. You can then use `evaluate.py` to create a TREC runfile that can be evaluated with the TREC evaluation tool.

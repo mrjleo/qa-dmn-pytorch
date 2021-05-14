@@ -9,7 +9,8 @@ from pytorch_lightning import seed_everything
 from ranking_utils.datasets.antique import ANTIQUE
 from ranking_utils.datasets.fiqa import FiQA
 from ranking_utils.datasets.insuranceqa import InsuranceQA
-from ranking_utils.datasets.trecdl import TRECDL2019Passage
+from ranking_utils.datasets.trecdl import TRECDL2019Passage, TRECDL2019Document
+from ranking_utils.datasets.trec import TREC
 
 
 def main():
@@ -22,7 +23,7 @@ def main():
 
     subparsers = ap.add_subparsers(help='Choose a dataset', dest='dataset')
     subparsers.required = True
-    DATASETS = [ANTIQUE, FiQA, InsuranceQA, TRECDL2019Passage]
+    DATASETS = [ANTIQUE, FiQA, InsuranceQA, TRECDL2019Passage, TRECDL2019Document, TREC]
     for c in DATASETS:
         c.add_subparser(subparsers, c.__name__.lower())
     args = ap.parse_args()

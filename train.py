@@ -61,8 +61,7 @@ def main():
     trainer = Trainer.from_argparse_args(args, deterministic=True,
                                          replace_sampler_ddp=False,
                                          default_root_dir=args.save_dir,
-                                         checkpoint_callback=model_checkpoint,
-                                         callbacks=[early_stopping])
+                                         callbacks=[early_stopping, model_checkpoint])
     trainer.fit(model)
     if args.test:
         trainer.test()
