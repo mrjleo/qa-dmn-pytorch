@@ -30,7 +30,7 @@ def main():
     with h5py.File(args.DATA_FILE, 'r') as fp:
         num_items = len(fp['queries']) + len(fp['docs'])
         ct = Counter()
-        for s in tqdm(chain(fp['queries'], fp['docs']), total=num_items):
+        for s in tqdm(chain(fp['queries'].asstr(), fp['docs'].asstr()), total=num_items):
             ct.update(nltk.word_tokenize(s))
         vocab = Vocab(ct, args.max_size, vectors=args.vectors, vectors_cache=args.cache, unk_init=torch.nn.init.normal_)
 

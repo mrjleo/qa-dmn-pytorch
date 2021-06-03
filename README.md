@@ -4,12 +4,12 @@ This is an implementation of the Dynamic Memory Network proposed in [Ask Me Anyt
 ## Requirements
 This code is tested with Python 3.8.10 and
 * torch==1.8.1
-* pytorch-lightning==1.3.1
-* h5py==2.10.0
-* numpy==1.20.1
+* pytorch-lightning==1.3.3
+* h5py==3.2.1
+* numpy==1.20.2
+* tqdm==4.61.0
 * torchtext==0.9.1
-* tqdm==4.60.0
-* nltk==3.6.1
+* nltk==3.6.2
 
 ## Cloning
 Clone this repository using `git clone --recursive` to get the submodule.
