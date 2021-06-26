@@ -29,7 +29,6 @@ def main():
     ap.add_argument('--save_top_k', type=int, default=1, help='Save top-k checkpoints')
     ap.add_argument('--limit_val_batches', type=int, default=sys.maxsize, help='Use a subset of validation data')
     ap.add_argument('--limit_train_batches', type=int, default=sys.maxsize, help='Use a subset of training data')
-    ap.add_argument('--limit_test_batches', type=int, default=sys.maxsize, help='Use a subset of test data')
     ap.add_argument('--precision', type=int, choices=[16, 32], default=32, help='Floating point precision')
     ap.add_argument('--accelerator', default='ddp', help='Distributed backend (accelerator)')
 
