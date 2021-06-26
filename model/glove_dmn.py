@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from typing import Any, Dict, List, Tuple
 
 import torch
-from torchtext.vocab import Vocab
+from torchtext.legacy.vocab import Vocab
 from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence, pad_packed_sequence
 
 from ranking_utils.lightning.base_ranker import BaseRanker
@@ -14,7 +14,7 @@ class InputModule(torch.nn.Module):
     """This module transforms GloVe indices into DMN inputs.
 
     Args:
-        glove (GloVe): GloVe embedding
+        vocab (Vocab): Vocabulary
         rep_dim (int): The dimension of the fact representations
         dropout (float): Dropout value
     """
@@ -282,19 +282,22 @@ class GloVeDMNRanker(BaseRanker):
     Args:
         hparams (Dict[str, Any]): All model hyperparameters
         vocab (Vocab): Vocabulary
-        num_workers (int, optional): Number of DataLoader workers. Defaults to 16.
-        training_mode (str, optional): Training mode, 'pointwise' or 'pairwise'. Defaults to 'pairwise'.
     """
-    def __init__(self, hparams: Dict[str, Any], vocab: Vocab, num_workers: int = 16, training_mode: str = 'pairwise'):
-        if training_mode == 'pointwise':
+    def __init__(self, hparams: Dict[str, Any], vocab: Vocab):
+        train_ds = None
+        if hparams.get('training_mode') == 'pointwise':
             train_ds = DMNPointwiseTrainDataset(hparams['data_file'], hparams['train_file_pointwise'], vocab)
-        else:
-            assert training_mode == 'pairwise'
+        elif hparams.get('training_mode') == 'pairwise':
             train_ds = DMNPairwiseTrainDataset(hparams['data_file'], hparams['train_file_pairwise'], vocab)
-        val_ds = DMNValTestDataset(hparams['data_file'], hparams['val_file'], vocab)
-        test_ds = DMNValTestDataset(hparams['data_file'], hparams['test_file'], vocab)
-        uses_ddp = 'ddp' in hparams['accelerator']
-        super().__init__(hparams, train_ds, val_ds, test_ds, hparams['loss_margin'], hparams['batch_size'], num_workers, uses_ddp)
+        val_ds = None
+        if hparams.get('val_file') is not None:
+            val_ds = DMNValTestDataset(hparams['data_file'], hparams['val_file'], vocab)
+        test_ds = None
+        if hparams.get('test_file') is not None:
+            test_ds = DMNValTestDataset(hparams['data_file'], hparams['test_file'], vocab)
+
+        num_workers = hparams.get('num_workers')
+        super().__init__(hparams, train_ds, val_ds, test_ds, hparams['loss_margin'], hparams['batch_size'], num_workers)
 
         self.input_module = InputModule(vocab, hparams['rep_dim'], hparams['dropout'])
         self.memory_module = MemoryModule(hparams['rep_dim'], hparams['attention_dim'], hparams['agru_dim'])
@@ -338,3 +341,5 @@ class GloVeDMNRanker(BaseRanker):
         ap.add_argument('--lr', type=float, default=0.001, help='Learning rate')
         ap.add_argument('--loss_margin', type=float, default=0.2, help='Margin for pairwise loss')
         ap.add_argument('--batch_size', type=int, default=32, help='Batch size')
+        ap.add_argument('--training_mode', choices=['pointwise', 'pairwise'], default='pairwise', help='Training mode')
+        ap.add_argument('--num_workers', type=int, default=16, help='Number of DataLoader workers')

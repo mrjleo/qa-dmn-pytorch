@@ -9,6 +9,8 @@ from pathlib import Path
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 
+from ranking_utils.util import predict_and_save
+
 from model.glove_dmn import GloVeDMNRanker
 
 
@@ -35,12 +37,11 @@ def main():
     GloVeDMNRanker.add_model_specific_args(ap)
 
     # remaining args
-    ap.add_argument('--training_mode', choices=['pointwise', 'pairwise'], default='pairwise', help='Training mode')
+    ap.add_argument('--val_metric', default='val_RetrievalMAP', help='Validation metric to monitor')
     ap.add_argument('--val_patience', type=int, default=3, help='Validation patience')
     ap.add_argument('--save_dir', default='out', help='Directory for logs, checkpoints and predictions')
     ap.add_argument('--random_seed', type=int, default=123, help='Random seed')
-    ap.add_argument('--load_weights', help='Load pre-trained weights before training')
-    ap.add_argument('--test', action='store_true', help='Test the model after training')
+    ap.add_argument('--predict', action='store_true', help='Run the model on the testset after training')
     args = ap.parse_args()
 
     # in DDP mode we always need a random seed
@@ -54,17 +55,16 @@ def main():
     args.test_file = data_dir / args.FOLD_NAME / 'test.h5'
     with open(args.VOCAB, 'rb') as fp:
         vocab = pickle.load(fp)
-    model = GloVeDMNRanker(vars(args), vocab, training_mode=args.training_mode)
+    model = GloVeDMNRanker(vars(args), vocab)
 
-    early_stopping = EarlyStopping(monitor='val_map', mode='max', patience=args.val_patience, verbose=True)
-    model_checkpoint = ModelCheckpoint(monitor='val_map', mode='max', save_top_k=args.save_top_k, verbose=True)
+    early_stopping = EarlyStopping(monitor=args.val_metric, mode='max', patience=args.val_patience, verbose=True)
+    model_checkpoint = ModelCheckpoint(monitor=args.val_metric, mode='max', save_top_k=args.save_top_k, verbose=True)
     trainer = Trainer.from_argparse_args(args, deterministic=True,
-                                         replace_sampler_ddp=False,
                                          default_root_dir=args.save_dir,
                                          callbacks=[early_stopping, model_checkpoint])
     trainer.fit(model)
-    if args.test:
-        trainer.test()
+    if args.predict:
+        predict_and_save(trainer, model.test_ds)
 
 
 if __name__ == '__main__':

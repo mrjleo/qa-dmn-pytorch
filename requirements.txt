@@ -1,0 +1,5 @@
+torch >= 1.8.0
+pytorch_lightning >= 1.3.0
+torchtext >= 0.10.0
+nltk
+git+https://github.com/mrjleo/ranking-utils.git#egg=ranking_utils

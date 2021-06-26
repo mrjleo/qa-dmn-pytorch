@@ -16,7 +16,7 @@ DMNPointwiseTrainBatch = Tuple[DMNBatch, torch.FloatTensor]
 DMNPairwiseTrainInput = Tuple[DMNInput, DMNInput]
 DMNPairwiseTrainBatch = Tuple[DMNBatch, DMNBatch]
 DMNValTestInput = Tuple[int, int, DMNInput, int]
-DMNValTestBatch = Tuple[torch.IntTensor, torch.IntTensor, DMNBatch, torch.IntTensor]
+DMNValTestBatch = Tuple[torch.LongTensor, torch.LongTensor, DMNBatch, torch.LongTensor]
 
 
 def _get_single_dmn_input(query: str, doc: str, vocab: Vocab) -> DMNInput:
@@ -172,7 +172,7 @@ class DMNValTestDataset(ValTestDatasetBase):
             DMNValTestBatch: A batch of validation inputs
         """
         q_ids, doc_ids, inputs, labels = zip(*val_test_inputs)
-        return torch.IntTensor(q_ids), \
-               torch.IntTensor(doc_ids), \
+        return torch.LongTensor(q_ids), \
+               torch.LongTensor(doc_ids), \
                _collate_dmn(inputs, self.pad_id), \
-               torch.IntTensor(labels)
+               torch.LongTensor(labels)
