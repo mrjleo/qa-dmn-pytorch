@@ -38,7 +38,7 @@ python train.py -h
 ```
 Make sure to set `CUDA_VISIBLE_DEVICES` and use the `--gpus` argument when you train. For example, in order to train on GPUs `0` and `2`:
 ```
-CUDA_VISIBLE_DEVICES=0,2 python train.py /preprocessed/files fold_1 --gpus 0 1 --batch_size 32 --precision 16
+CUDA_VISIBLE_DEVICES=0,2 python train.py /preprocessed/files fold_1 /vocab/file --gpus 0 1 --batch_size 32 --precision 16
 ```
 Note that the IDs in `--gpus 0 1` index only the __visible GPUS__, in this case `CUDA_VISIBLE_DEVICES=0,2`.
 
